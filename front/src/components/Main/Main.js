@@ -11,7 +11,16 @@ function Main() {
       const response = await axios.get('http://localhost:8080/minesweeper/new');
       setGameData(response.data);
     } catch (error) {
-      console.error('Erro ao buscar dados do jogo:', error);
+      console.error('Error on start new game:', error);
+    }
+  };
+
+  const handleRestartGame = async (gameId) => {
+    try {
+      const response = await axios.get(`http://localhost:8080/minesweeper/restart/${gameId}`);
+      setGameData(response.data);
+    } catch (error) {
+      console.error('Error on restart game:', error);
     }
   };
 
@@ -23,18 +32,25 @@ function Main() {
       const response = await axios.put(`http://localhost:8080/minesweeper/click/${gameId}?positionX=${coordinate.x}&positionY=${coordinate.y}`);
       setGameData(response.data);
     } catch (error) {
-      console.error('Erro ao realizar a jogada:', error);
+      console.error('Error on make a move:', error);
     }
   };
 
   return (
     <div className="Main">
-      {/* Renderiza o componente Grid e passa o objeto gameData como prop */}
+
+      <header className="header">
+        <h1 className="title">Minesweeper App</h1>
+        <p className="subtitle">Powered by: Renan Rodrigues</p>
+        {gameData && <p className="gameId">Game ID: {gameData.id}</p>}
+      </header>
+
+      {gameData && <button className="button" onClick={() => handleRestartGame(gameData.id)}>Restart Game</button>}
+      <button className="button" onClick={handleNewGame}>New Game</button>
+
+
       {gameData && <Grid gameData={gameData} onItemClick={handleItemClick} />}
-      
-      {/* Renderiza o botão para iniciar um novo jogo */}
-      <button onClick={handleNewGame}>Novo Jogo</button>
-    </div>
+      </div>
   );
 }
 
