@@ -1,12 +1,16 @@
 import React from "react";
 import "./GridPosition.css";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBomb } from '@fortawesome/free-solid-svg-icons';
+import { faBomb, faFlag } from '@fortawesome/free-solid-svg-icons';
 
 
-const GridPosition = ({ gameId, coordinate, onItemClick, alreadyClicked, totalNeighbourBombs, hasBomb, gameFinished }) => {
+const GridPosition = ({ gameId, coordinate, onItemClick, alreadyClicked, totalNeighbourBombs, hasBomb, hasFlag, gameFinished, onContextMenu }) => {
   const handleClick = () => {
     onItemClick(gameId, coordinate);
+  };
+  const handleContextMenu = (e) => {
+    e.preventDefault();
+    onContextMenu(gameId, coordinate);
   };
 
   const renderContent = () => { 
@@ -19,11 +23,15 @@ const GridPosition = ({ gameId, coordinate, onItemClick, alreadyClicked, totalNe
         // Show totalNeighbourBombs when gameFinished is true and totalNeighbourBombs > 0
         return totalNeighbourBombs;
       }
-    } else {
-      if (alreadyClicked && totalNeighbourBombs > 0) {
-        // Show totalNeighbourBombs when gameFinished is false, alreadyClicked is true, and totalNeighbourBombs > 0
-        return totalNeighbourBombs;
-      }
+    }
+
+    if (alreadyClicked && totalNeighbourBombs > 0) {
+      // Show totalNeighbourBombs when gameFinished is false, alreadyClicked is true, and totalNeighbourBombs > 0
+      return totalNeighbourBombs;
+    }
+
+    if (hasFlag) {
+      return <FontAwesomeIcon icon={faFlag} />;
     }
 
     // Return null if no content to show
@@ -34,7 +42,7 @@ const GridPosition = ({ gameId, coordinate, onItemClick, alreadyClicked, totalNe
 
 
   return (
-    <div className={gridClassName} onClick={handleClick}>
+    <div className={gridClassName} onClick={handleClick} onContextMenu={handleContextMenu}>
       {renderContent()}      
     </div>
   );

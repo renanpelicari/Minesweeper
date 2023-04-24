@@ -43,7 +43,7 @@ public class StartNewGameUseCase {
 
     @Transactional
     public Game exec() {
-        log.info("BEGIN startNewGame strategy.");
+        log.info("BEGIN startNewGame.");
 
         int uncoveredCoordinates = minesweeperConfig.height() * minesweeperConfig.width();
         Set<Coordinate> bombPositions = generateBombPositionsUseCase.exec();
@@ -59,7 +59,7 @@ public class StartNewGameUseCase {
         Game savedGame = gameRepository.save(game);
         copyGameRepository.save(CopyGameMapper.gameToCopy(savedGame));
 
-        log.info("END startNewGame strategy, response={}", savedGame);
+        log.info("END startNewGame, response={}", savedGame);
         return savedGame;
 
     }

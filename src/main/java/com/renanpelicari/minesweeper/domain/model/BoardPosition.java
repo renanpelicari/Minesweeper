@@ -12,6 +12,17 @@ public record BoardPosition(Coordinate coordinate,
                             int totalNeighbourBombs,
                             Set<Coordinate> neighbourBombs) {
 
+    public BoardPosition copyUpdatingFlag(boolean hasFlag) {
+        return BoardPosition.builder()
+                .coordinate(this.coordinate)
+                .hasBomb(this.hasBomb)
+                .hasFlag(hasFlag)
+                .alreadyClicked(this.alreadyClicked)
+                .totalNeighbourBombs(this.totalNeighbourBombs)
+                .neighbourBombs(this.neighbourBombs)
+                .build();
+    }
+
     public BoardPosition copyUpdatingAlreadyClicked(boolean alreadyClicked) {
         return BoardPosition.builder()
                 .coordinate(this.coordinate)

@@ -46,7 +46,9 @@ public class PerformMovementStrategy {
         Game game = gameRepository.findById(gameId)
                 .orElseThrow(() -> new NotFoundException(String.format("Game not found by id=%s", gameId)));
 
-        Game gameToUpdate = performMovement(game, x, y);
+        boolean firstExec = true; // TODO: document/improve this - first execution of recursion, to avoid validation
+        // of flags during the recursive call
+        Game gameToUpdate = performMovement(game, x, y, firstExec);
 
         // decrement uncoveredCoordinates based on this move and collect the new status
         int uncoveredCoordinates = (int) gameToUpdate.boardPositionMap().values().stream()
@@ -62,7 +64,7 @@ public class PerformMovementStrategy {
         return savedGame;
     }
 
-    private Game performMovement(Game game, int x, int y) {
+    private Game performMovement(Game game, int x, int y, boolean firstExec) {
         // verify the status of game
         validateGameAlreadyFinished(game);
 
@@ -77,8 +79,13 @@ public class PerformMovementStrategy {
         validatePositionIsValid(boardPositionMap, coordinate);
         BoardPosition boardPositionClicked = boardPositionMap.get(coordinateKey);
 
+        // verify if the position has flag
+        if (firstExec) {
+            validatePositionHasFlag(boardPositionClicked, coordinate);
+        }
+
         // verify if the position was clicked before
-//        validatePositionAlreadyClicked(boardPositionClicked, coordinate);
+        validatePositionAlreadyClicked(boardPositionClicked, coordinate);
 
         // generate new object from an exists one and update the map
         BoardPosition boardPositionToUpdate = boardPositionClicked.copyUpdatingAlreadyClicked(true);
@@ -102,7 +109,7 @@ public class PerformMovementStrategy {
                         !boardPositionMap.get(neighbourCoordinateKey).hasBomb() &&
                         !neighbourCoordinate.equals(coordinate)) {
                     // Recursively call the exec() method for the adjacent position
-                    performMovement(gameToUpdate, neighbourCoordinate.x(), neighbourCoordinate.y());
+                    performMovement(gameToUpdate, neighbourCoordinate.x(), neighbourCoordinate.y(), false);
                 }
             }
         }
@@ -126,10 +133,17 @@ public class PerformMovementStrategy {
         }
     }
 
+    private void validatePositionHasFlag(BoardPosition boardPositionClicked, Coordinate coordinate) {
+        if (boardPositionClicked.hasFlag()) {
+            String message = String.format("Position {%s} has flag.", coordinate);
+            log.warn("WARN {}", message);
+            throw new InvalidMovementException(message);
+        }
+    }
     private void validatePositionAlreadyClicked(BoardPosition boardPositionClicked, Coordinate coordinate) {
         if (boardPositionClicked.alreadyClicked()) {
             String message = String.format("Position {%s} was previously clicked.", coordinate);
-            log.error("ERROR {}", message);
+            log.warn("WARN {}", message);
             throw new InvalidMovementException(message);
         }
     }

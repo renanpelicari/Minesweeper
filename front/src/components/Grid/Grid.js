@@ -2,13 +2,11 @@ import React from "react";
 import GridPosition from "../GridPosition/GridPosition";
 import "./Grid.css";
 
-function Grid({ gameData, onItemClick }) {
+function Grid({ gameData, onItemClick, onContextMenu }) {
   const { boardPositionMap, id, status } = gameData;
   const gameFinished = status === 'PLAYER_WON' || status === 'PLAYER_LOST';
 
   const gridClassName = gameFinished ? "grid-container readonly" : "grid-container";
-
-  console.log(gameData.boardPositionMap);
 
   // Obter o maior valor de x e y do backend
   const maxX = Math.max(...Object.keys(boardPositionMap).map(positionKey => boardPositionMap[positionKey].coordinate.x)) + 1;
@@ -33,6 +31,7 @@ function Grid({ gameData, onItemClick }) {
             totalNeighbourBombs={totalNeighbourBombs}
             neighbourBombs={neighbourBombs}
             onItemClick={gameFinished ? null : onItemClick}
+            onContextMenu={gameFinished ? null : onContextMenu}
             readOnly={gameFinished}
           />
         );

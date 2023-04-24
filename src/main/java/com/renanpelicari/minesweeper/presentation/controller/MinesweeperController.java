@@ -1,5 +1,6 @@
 package com.renanpelicari.minesweeper.presentation.controller;
 
+import com.renanpelicari.minesweeper.business.usecase.ChangeFlagUseCase;
 import com.renanpelicari.minesweeper.business.usecase.RestartGameUseCase;
 import com.renanpelicari.minesweeper.business.usecase.StartNewGameUseCase;
 import com.renanpelicari.minesweeper.business.strategy.PerformMovementStrategy;
@@ -16,13 +17,17 @@ public class MinesweeperController {
 
     private final RestartGameUseCase restartGameUseCase;
 
+    private final ChangeFlagUseCase changeFlagUseCase;
+
     private final PerformMovementStrategy performMovementStrategy;
 
     public MinesweeperController(StartNewGameUseCase startNewGameUseCase,
                                  RestartGameUseCase restartGameUseCase,
+                                 ChangeFlagUseCase changeFlagUseCase,
                                  PerformMovementStrategy performMovementStrategy) {
         this.startNewGameUseCase = startNewGameUseCase;
         this.restartGameUseCase = restartGameUseCase;
+        this.changeFlagUseCase = changeFlagUseCase;
         this.performMovementStrategy = performMovementStrategy;
     }
 
@@ -43,10 +48,10 @@ public class MinesweeperController {
                         @RequestParam int positionY) {
         return performMovementStrategy.exec(gameId, positionX, positionY);
     }
-//
-//    @PutMapping(value = "/flag/{id}")
-//    public Game changeFlag(@PathVariable("id") Long gameId, @RequestParam int positionX,
-//                                    @RequestParam int positionY) {
-//        return null;
-//    }
+
+    @PutMapping(value = "/flag/{id}")
+    public Game changeFlag(@PathVariable("id") String gameId, @RequestParam int positionX,
+                           @RequestParam int positionY) {
+        return changeFlagUseCase.exec(gameId, positionX, positionY);
+    }
 }

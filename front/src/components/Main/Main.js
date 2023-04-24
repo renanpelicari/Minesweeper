@@ -4,8 +4,7 @@ import './Main.css';
 import Grid from '../Grid/Grid';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTrophy } from '@fortawesome/free-solid-svg-icons';
-import { faBomb } from '@fortawesome/free-solid-svg-icons';
+import { faTrophy, faBomb } from '@fortawesome/free-solid-svg-icons';
 
 function Main() {
   const [gameData, setGameData] = useState(null);
@@ -62,9 +61,19 @@ function Main() {
       setGameData(response.data);
     } catch (error) {
       console.error('Error on make a move:', error);
-      window.alert("Invalid Movement");
+      window.alert("Invalid Movement: " + error.message);
     }
   };
+
+  const handleChangeFlag = async (gameId, coordinate) => {
+    try {
+      const response = await axios.put(`http://localhost:8080/minesweeper/flag/${gameId}?positionX=${coordinate.x}&positionY=${coordinate.y}`);
+      setGameData(response.data);
+    } catch (error) {
+      console.error('Error on flag/unflag a position:', error);
+      window.alert("Error on flag/unflag a position: " + error.message);
+    }
+  }
 
   return (
     <div className="Main">
@@ -79,7 +88,13 @@ function Main() {
 
       {renderStatus()}
 
-      {gameData && <Grid gameData={gameData} onItemClick={handleItemClick} />}
+      {gameData && 
+        <Grid gameData={gameData} 
+          onItemClick={handleItemClick} 
+          onContextMenu={handleChangeFlag}
+        />}
+        
+        {gameData && <p className="flag-info">Add/Remove flags with secondary mouse clicking.</p>}
       </div>
   );
 }
