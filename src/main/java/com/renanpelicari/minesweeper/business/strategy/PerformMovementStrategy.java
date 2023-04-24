@@ -45,6 +45,9 @@ public class PerformMovementStrategy {
         Game game = gameRepository.findById(gameId)
                 .orElseThrow(() -> new NotFoundException(String.format("Game not found by id=%s", gameId)));
 
+        // verify the status of game
+        validateGameAlreadyFinished(game);
+
         // new clicked position
         Coordinate coordinate = new Coordinate(x, y);
         Integer coordinateKey = coordinate.hashCode();
@@ -83,6 +86,14 @@ public class PerformMovementStrategy {
             return GameStatus.PLAYER_WON;
         }
         return GameStatus.IN_PROGRESS;
+    }
+
+    private void validateGameAlreadyFinished(Game game) {
+        if (game.status().isGameFinished()) {
+            String message = String.format("Game %s already finished, current status is %s.", game.id(), game.status());
+            throw new InvalidMovementException(message);
+
+        }
     }
 
     private void validatePositionIsValid(Map<Integer, BoardPosition> boardPositionMap, Coordinate coordinate) {

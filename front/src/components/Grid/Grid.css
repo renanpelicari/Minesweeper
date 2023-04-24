@@ -2,8 +2,16 @@
 
 .grid-container {
     display: grid;
-    grid-template-columns: repeat(18, 1fr);
-    grid-template-rows: repeat(14, 1fr);
+    /* grid-template-columns: repeat(18, 0fr);
+    grid-template-rows: repeat(14, 0fr); */
+    justify-content: center; 
+    margin: 0 auto;
+    margin-top: 30px;    
+}
+
+.grid-container.readonly {
+    pointer-events: none;
+    opacity: 0.4;
 }
 
 .grid-position {
@@ -13,4 +21,7 @@
     justify-content: center;
     align-items: center;
     cursor: pointer;
+    width: 30px;
+    height: 30px;
+    margin: auto;
 }

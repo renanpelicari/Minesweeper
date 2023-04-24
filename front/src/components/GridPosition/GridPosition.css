@@ -6,8 +6,11 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: #e0e0e0;
+    background-color: #767272;
     cursor: pointer;
+}
+.grid-position.already-clicked {
+    background-color: #e7dede;
 }
 
 .grid-position:hover {
