@@ -1,17 +1,13 @@
 package com.renanpelicari.minesweeper.infrastructure.config;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 
-@Component
+@ConfigurationProperties("minesweeper.config")
 public record MinesweeperConfig(
-    @Value("minesweeper.config.width")
     int width,
 
-    @Value("minesweeper.config.height")
     int height,
 
-    @Value("minesweeper.config.bombs")
     int bombs
 ) {
     public MinesweeperConfig {

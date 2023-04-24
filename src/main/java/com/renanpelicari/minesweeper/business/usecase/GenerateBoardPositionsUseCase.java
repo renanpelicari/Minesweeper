@@ -33,6 +33,7 @@ public class GenerateBoardPositionsUseCase {
                     return BoardPosition.builder()
                             .coordinate(coordinate)
                             .hasBomb(hasBomb)
+                            .hasFlag(false)
                             .neighbourBombs(neighbourBombs)
                             .totalNeighbourBombs(neighbourBombs.size())
                             .build();

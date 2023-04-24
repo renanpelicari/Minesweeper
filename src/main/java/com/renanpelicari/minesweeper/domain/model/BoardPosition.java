@@ -7,6 +7,7 @@ import java.util.Set;
 @Builder
 public record BoardPosition(Coordinate coordinate,
                             boolean hasBomb,
+                            boolean hasFlag,
                             boolean alreadyClicked,
                             int totalNeighbourBombs,
                             Set<Coordinate> neighbourBombs) {

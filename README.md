@@ -19,3 +19,18 @@ Here is a brief overview of the different layers and their components:
 * `presentation`: Contains the presentation layer components, such as controllers (for REST or Thymeleaf) and views (in case of Thymeleaf), along with their associated Value Objects (VO).
 
 By organizing the project structure in this way, we ensure a clear separation of concerns and promote maintainability and extensibility of the codebase.
+
+
+## Useful links
+
+Actuator:
+http://localhost:8080/actuator
+
+Actuator/Health:
+http://localhost:8080/actuator/health
+
+OpenAPI Docs:
+http://localhost:8080/api-docs
+
+SwaggerUI:
+http://localhost:8080/swagger-ui

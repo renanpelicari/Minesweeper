@@ -13,9 +13,4 @@ public record Game(@Id String id,
                    int totalBombs,
                    int uncoveredCoordinates,
                    Set<BoardPosition> boardPositions) {
-
-    // Constructor without id for creating new objects to be saved in MongoDB
-    public Game(GameStatus status, int totalBombs, int uncoveredCoordinates, Set<BoardPosition> boardPositions) {
-        this(null, status, totalBombs, uncoveredCoordinates, boardPositions);
-    }
 }

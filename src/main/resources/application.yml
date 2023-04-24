@@ -1,7 +1,32 @@
+spring:
+  application:
+    name: minesweeper-api
 
+  data:
+    mongodb:
+      uri: mongodb://root:rootpwd@localhost:27017/minesweeper?authSource=admin
+      database: minesweeper
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: 'health,mappings'
+
+springdoc:
+  api-docs:
+    enabled: true
+    path: '/api-docs'
+  swagger-ui:
+    enabled: true
+    path: '/swagger-ui'
+
+logging:
+  level:
+    org.springframework.web: INFO
 
 minesweeper:
   config:
-    width: 18
-    height: 14
-    bombs: 40
+    width: "18"
+    height: "14"
+    bombs: "40"
