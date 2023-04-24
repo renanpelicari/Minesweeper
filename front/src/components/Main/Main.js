@@ -12,6 +12,7 @@ function Main() {
       setGameData(response.data);
     } catch (error) {
       console.error('Error on start new game:', error);
+      window.alert("Error on start new game: " + error.message);
     }
   };
 
@@ -21,18 +22,17 @@ function Main() {
       setGameData(response.data);
     } catch (error) {
       console.error('Error on restart game:', error);
+      window.alert("Error on restart game: " + error.message);
     }
   };
 
   const handleItemClick = async (gameId, coordinate) => {
-    console.log("clicked on grid position")
-    console.log(gameId)
-    console.log(coordinate)
     try {
       const response = await axios.put(`http://localhost:8080/minesweeper/click/${gameId}?positionX=${coordinate.x}&positionY=${coordinate.y}`);
       setGameData(response.data);
     } catch (error) {
       console.error('Error on make a move:', error);
+      window.alert("Invalid Movement");
     }
   };
 

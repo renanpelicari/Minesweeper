@@ -68,7 +68,7 @@ public class PerformMovementStrategy {
 
         // decrement uncoveredCoordinates based on this move and collect the new status
         int uncoveredCoordinates = game.uncoveredCoordinates() - 1;
-        GameStatus gameStatus = getGameStatus(boardPositionClicked.hasBomb(), uncoveredCoordinates);
+        GameStatus gameStatus = getGameStatus(boardPositionClicked.hasBomb(), uncoveredCoordinates, game.totalBombs());
 
         // update and save the game with this current movement
         Game gameToUpdate = game.copyUpdatingMovement(gameStatus, uncoveredCoordinates, boardPositionMap);
@@ -78,11 +78,11 @@ public class PerformMovementStrategy {
         return savedGame;
     }
 
-    private GameStatus getGameStatus(boolean explode, int uncoveredCoordinates) {
+    private GameStatus getGameStatus(boolean explode, int uncoveredCoordinates, int totalBombs) {
         if (explode) {
             return GameStatus.PLAYER_LOST;
         }
-        if (uncoveredCoordinates == 0) {
+        if (uncoveredCoordinates == totalBombs) {
             return GameStatus.PLAYER_WON;
         }
         return GameStatus.IN_PROGRESS;

@@ -8,6 +8,8 @@ function Grid({ gameData, onItemClick }) {
 
   const gridClassName = gameFinished ? "grid-container readonly" : "grid-container";
 
+  console.log(gameData.boardPositionMap);
+
   // Obter o maior valor de x e y do backend
   const maxX = Math.max(...Object.keys(boardPositionMap).map(positionKey => boardPositionMap[positionKey].coordinate.x)) + 1;
   const maxY = Math.max(...Object.keys(boardPositionMap).map(positionKey => boardPositionMap[positionKey].coordinate.y)) + 1;
