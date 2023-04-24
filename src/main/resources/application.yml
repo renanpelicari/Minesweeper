@@ -1,0 +1,7 @@
+
+
+minesweeper:
+  config:
+    width: 18
+    height: 14
+    bombs: 40
