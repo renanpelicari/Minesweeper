@@ -1,5 +1,6 @@
 package com.renanpelicari.minesweeper.business.usecase;
 
+import com.renanpelicari.minesweeper.domain.model.BoardPosition;
 import com.renanpelicari.minesweeper.domain.model.Coordinate;
 import com.renanpelicari.minesweeper.infrastructure.config.MinesweeperConfig;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,15 +12,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class GenerateBombPositionUseCaseTest {
+class GenerateBoardPositionsUseCaseTest {
 
     @InjectMocks
-    private GenerateBombPositionUseCase generateBombPositionUseCase;
+    private GenerateBoardPositionsUseCase generateBoardPositionsUseCase;
 
     @Mock
     private MinesweeperConfig minesweeperConfig;
@@ -33,28 +33,29 @@ class GenerateBombPositionUseCaseTest {
         // Mock the MinesweeperConfig object
         when(minesweeperConfig.width()).thenReturn(WIDTH);
         when(minesweeperConfig.height()).thenReturn(HEIGHT);
-        when(minesweeperConfig.bombs()).thenReturn(BOMBS);
     }
 
     @Test
-    public void shouldGenerateUniqueBombPositionsBasedOnConfigAmount() {
-        // Call the exec() method to generate bomb positions
-        Set<Coordinate> bombPositions = generateBombPositionUseCase.exec();
+    public void shouldGeneratePositionsForAllGrid() {
 
-        // Assert that the size of the generated bomb positions set is equal to the number of bombs
-        assertEquals(BOMBS, bombPositions.size());
+        Set<Coordinate> bombPositions = Set.of(
+                new Coordinate(1, 3),
+                new Coordinate(1, 4),
+                new Coordinate(2, 2),
+                new Coordinate(3, 1),
+                new Coordinate(4, 3)
+        );
+
+        Set<BoardPosition> boardPositions = generateBoardPositionsUseCase.exec(bombPositions);
 
         // Assert that each bomb position coordinate is within the grid size
-        bombPositions.forEach(coordinate -> {
-            int x = coordinate.x();
-            int y = coordinate.y();
-            assertTrue(x >= 0 && x < WIDTH);
-            assertTrue(y >= 0 && y < HEIGHT);
-        });
+        assertEquals(25, boardPositions.size());
+        assertEquals(5, boardPositions.stream().filter(BoardPosition::hasBomb).count());
 
-        // Verify that the width(), height(), and bombs() methods were called on the MinesweeperConfig object
+        // Verify that the width(), height() were called on the MinesweeperConfig object
         verify(minesweeperConfig).width();
         verify(minesweeperConfig).height();
-        verify(minesweeperConfig).bombs();
+        verify(minesweeperConfig, never()).bombs();
     }
+
 }
