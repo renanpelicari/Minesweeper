@@ -37,4 +37,4 @@ out/
 .vscode/
 
 data/*
-data
+datanode_modules/
