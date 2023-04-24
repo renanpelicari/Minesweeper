@@ -12,6 +12,7 @@ import com.renanpelicari.minesweeper.infrastructure.config.MinesweeperConfig;
 import com.renanpelicari.minesweeper.infrastructure.repository.GameRepository;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
@@ -38,13 +39,23 @@ public class PerformMovementStrategy {
         this.gameRepository = gameRepository;
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Game exec(String gameId, int x, int y) {
         log.info("BEGIN updateGame strategy.");
 
         Game game = gameRepository.findById(gameId)
                 .orElseThrow(() -> new NotFoundException(String.format("Game not found by id=%s", gameId)));
 
+        performMovement(game, x, y);
+
+        Game updatedGame = gameRepository.findById(gameId)
+                .orElseThrow(() -> new NotFoundException(String.format("Game not found by id=%s", gameId)));
+
+        log.info("END updateGame strategy, response={}", updatedGame);
+        return updatedGame;
+    }
+
+    private void performMovement(Game game, int x, int y) {
         // verify the status of game
         validateGameAlreadyFinished(game);
 
@@ -60,7 +71,7 @@ public class PerformMovementStrategy {
         BoardPosition boardPositionClicked = boardPositionMap.get(coordinateKey);
 
         // verify if the position was clicked before
-        validatePositionAlreadyClicked(boardPositionClicked, coordinate);
+//        validatePositionAlreadyClicked(boardPositionClicked, coordinate);
 
         // generate new object from an exists one and update the map
         BoardPosition boardPositionToUpdate = boardPositionClicked.copyUpdatingAlreadyClicked(true);
@@ -72,10 +83,23 @@ public class PerformMovementStrategy {
 
         // update and save the game with this current movement
         Game gameToUpdate = game.copyUpdatingMovement(gameStatus, uncoveredCoordinates, boardPositionMap);
-        Game savedGame = gameRepository.save(gameToUpdate);
+        gameRepository.save(gameToUpdate);
 
-        log.info("END updateGame strategy, response={}", savedGame);
-        return savedGame;
+        // If the clicked position has no neighboring bombs, recursively click on neighboring positions
+        if (!gameStatus.isGameFinished() && boardPositionClicked.totalNeighbourBombs() == 0) {
+            for (Coordinate neighbourCoordinate : boardPositionClicked.neighbourBombs()) {
+
+                Integer neighbourCoordinateKey = neighbourCoordinate.hashCode();
+
+                // Check if the adjacent position is valid and not already clicked
+                if (boardPositionMap.containsKey(neighbourCoordinateKey) &&
+                        !boardPositionMap.get(neighbourCoordinateKey).alreadyClicked() &&
+                        !neighbourCoordinate.equals(coordinate)) {
+                    // Recursively call the exec() method for the adjacent position
+                    performMovement(game, neighbourCoordinate.x(), neighbourCoordinate.y());
+                }
+            }
+        }
     }
 
     private GameStatus getGameStatus(boolean explode, int uncoveredCoordinates, int totalBombs) {
@@ -91,14 +115,15 @@ public class PerformMovementStrategy {
     private void validateGameAlreadyFinished(Game game) {
         if (game.status().isGameFinished()) {
             String message = String.format("Game %s already finished, current status is %s.", game.id(), game.status());
+            log.error("ERROR {}", message);
             throw new InvalidMovementException(message);
-
         }
     }
 
     private void validatePositionIsValid(Map<Integer, BoardPosition> boardPositionMap, Coordinate coordinate) {
         if (!boardPositionMap.containsKey(coordinate.hashCode())) {
             String message = String.format("Position {%s} not exists in the game grid.", coordinate);
+            log.error("ERROR {}", message);
             throw new InvalidMovementException(message);
         }
     }
@@ -106,6 +131,7 @@ public class PerformMovementStrategy {
     private void validatePositionAlreadyClicked(BoardPosition boardPositionClicked, Coordinate coordinate) {
         if (boardPositionClicked.alreadyClicked()) {
             String message = String.format("Position {%s} was previously clicked.", coordinate);
+            log.error("ERROR {}", message);
             throw new InvalidMovementException(message);
         }
     }

@@ -7,31 +7,51 @@ import java.util.Set;
 
 public class CoordinateUtils {
 
-    public static Set<Coordinate> getNeighboursCoordinates(Coordinate coordinate) {
+    public static Set<Coordinate> getNeighboursCoordinates(Coordinate coordinate, int height, int width) {
         Set<Coordinate> coordinateSet = new HashSet<>();
 
         int x = coordinate.x();
         int y = coordinate.y();
 
+        // up
         if (x > 0) {
             coordinateSet.add(new Coordinate(x - 1, y));
         }
 
+        // left
         if (y > 0) {
             coordinateSet.add(new Coordinate(x, y - 1));
         }
 
-        coordinateSet.add(new Coordinate(x + 1, y));
-        coordinateSet.add(new Coordinate(x, y + 1));
+        // down
+        if (x < height - 1) {
+            coordinateSet.add(new Coordinate(x + 1, y));
+        }
 
-        // Add diagonal positions
+        // right
+        if (y < width - 1) {
+            coordinateSet.add(new Coordinate(x, y + 1));
+        }
+
+        // up left
         if (x > 0 && y > 0) {
             coordinateSet.add(new Coordinate(x - 1, y - 1));
         }
 
-        coordinateSet.add(new Coordinate(x + 1, y - 1));
-        coordinateSet.add(new Coordinate(x - 1, y + 1));
-        coordinateSet.add(new Coordinate(x + 1, y + 1));
+        // down right
+        if (x < height - 1 && y < width - 1) {
+            coordinateSet.add(new Coordinate(x + 1, y + 1));
+        }
+
+        // up right
+        if (x > 0 && y < width - 1) {
+            coordinateSet.add(new Coordinate(x - 1, y + 1));
+        }
+
+        // down left
+        if (x < height - 1 && y > 0) {
+            coordinateSet.add(new Coordinate(x + 1, y - 1));
+        }
 
         return coordinateSet;
     }
