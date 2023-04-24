@@ -3,6 +3,10 @@ import axios from 'axios';
 import './Main.css';
 import Grid from '../Grid/Grid';
 
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTrophy } from '@fortawesome/free-solid-svg-icons';
+import { faBomb } from '@fortawesome/free-solid-svg-icons';
+
 function Main() {
   const [gameData, setGameData] = useState(null);
 
@@ -26,6 +30,32 @@ function Main() {
     }
   };
 
+  const renderStatus = () => { 
+    if (gameData && gameData.status === 'PLAYER_WON') {
+      return <FontAwesomeIcon icon={faTrophy} style={{ fontSize: '48px', display: 'block', margin: '5 auto' }} />;
+    }
+
+    if (gameData && gameData.status === 'PLAYER_LOST') {
+      return <FontAwesomeIcon icon={faBomb} style={{ fontSize: '48px', display: 'block', margin: '5 auto' }} />;
+    }
+    return null;
+  }
+
+  const renderGameInfo = () => {
+    if (gameData) {
+      return (
+        <div>
+          <p className="gameId">Game ID: {gameData.id}</p>
+          <p className="status">Status: {gameData.status}</p>
+          <p className="totalBombs">Total bombs: {gameData.totalBombs}</p>
+          <p className="uncoveredCoordinates">Uncovered Coordinates: {gameData.uncoveredCoordinates}</p>
+        </div>
+      );
+    }
+
+    return null;
+  }
+
   const handleItemClick = async (gameId, coordinate) => {
     try {
       const response = await axios.put(`http://localhost:8080/minesweeper/click/${gameId}?positionX=${coordinate.x}&positionY=${coordinate.y}`);
@@ -41,17 +71,13 @@ function Main() {
 
       <header className="header">
         <h1 className="title">Minesweeper App</h1>
-        <p className="subtitle">Powered by: Renan Rodrigues</p>
-        {gameData && <p className="gameId">Game ID: {gameData.id}</p>}
-        {gameData && <p className="status">Status: {gameData.status}</p>}
-        {gameData && <p className="totalBombs">Total bombs: {gameData.totalBombs}</p>}
-        {gameData && <p className="uncoveredCoordinates">Uncovered Coordinates: {gameData.uncoveredCoordinates}</p>}
-
+        {renderGameInfo()}
       </header>
 
       {gameData && <button className="button" onClick={() => handleRestartGame(gameData.id)}>Restart Game</button>}
       <button className="button" onClick={handleNewGame}>New Game</button>
 
+      {renderStatus()}
 
       {gameData && <Grid gameData={gameData} onItemClick={handleItemClick} />}
       </div>

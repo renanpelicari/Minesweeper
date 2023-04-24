@@ -46,16 +46,23 @@ public class PerformMovementStrategy {
         Game game = gameRepository.findById(gameId)
                 .orElseThrow(() -> new NotFoundException(String.format("Game not found by id=%s", gameId)));
 
-        performMovement(game, x, y);
+        Game gameToUpdate = performMovement(game, x, y);
 
-        Game updatedGame = gameRepository.findById(gameId)
-                .orElseThrow(() -> new NotFoundException(String.format("Game not found by id=%s", gameId)));
+        // decrement uncoveredCoordinates based on this move and collect the new status
+        int uncoveredCoordinates = (int) gameToUpdate.boardPositionMap().values().stream()
+                        .filter(boardPosition -> !boardPosition.alreadyClicked() && !boardPosition.hasBomb())
+                        .count();
 
-        log.info("END updateGame strategy, response={}", updatedGame);
-        return updatedGame;
+        GameStatus status = uncoveredCoordinates == 0 ? GameStatus.PLAYER_WON : gameToUpdate.status();
+
+        // save updated game
+        Game savedGame = gameRepository.save(game.copyUpdatingStatus(status, uncoveredCoordinates));
+
+        log.info("END updateGame strategy, response={}", savedGame);
+        return savedGame;
     }
 
-    private void performMovement(Game game, int x, int y) {
+    private Game performMovement(Game game, int x, int y) {
         // verify the status of game
         validateGameAlreadyFinished(game);
 
@@ -77,13 +84,11 @@ public class PerformMovementStrategy {
         BoardPosition boardPositionToUpdate = boardPositionClicked.copyUpdatingAlreadyClicked(true);
         boardPositionMap.put(coordinateKey, boardPositionToUpdate);
 
-        // decrement uncoveredCoordinates based on this move and collect the new status
-        int uncoveredCoordinates = game.uncoveredCoordinates() - 1;
-        GameStatus gameStatus = getGameStatus(boardPositionClicked.hasBomb(), uncoveredCoordinates, game.totalBombs());
+        // check if position clicked is a bomb
+        GameStatus gameStatus = boardPositionClicked.hasBomb() ? GameStatus.PLAYER_LOST : game.status();
 
         // update and save the game with this current movement
-        Game gameToUpdate = game.copyUpdatingMovement(gameStatus, uncoveredCoordinates, boardPositionMap);
-        gameRepository.save(gameToUpdate);
+        Game gameToUpdate = game.copyUpdatingMovement(boardPositionMap, gameStatus);
 
         // If the clicked position has no neighboring bombs, recursively click on neighboring positions
         if (!gameStatus.isGameFinished() && boardPositionClicked.totalNeighbourBombs() == 0) {
@@ -91,25 +96,18 @@ public class PerformMovementStrategy {
 
                 Integer neighbourCoordinateKey = neighbourCoordinate.hashCode();
 
-                // Check if the adjacent position is valid and not already clicked
+                // Check if the adjacent position is valid, not already clicked and has not a bomb
                 if (boardPositionMap.containsKey(neighbourCoordinateKey) &&
                         !boardPositionMap.get(neighbourCoordinateKey).alreadyClicked() &&
+                        !boardPositionMap.get(neighbourCoordinateKey).hasBomb() &&
                         !neighbourCoordinate.equals(coordinate)) {
                     // Recursively call the exec() method for the adjacent position
-                    performMovement(game, neighbourCoordinate.x(), neighbourCoordinate.y());
+                    performMovement(gameToUpdate, neighbourCoordinate.x(), neighbourCoordinate.y());
                 }
             }
         }
-    }
 
-    private GameStatus getGameStatus(boolean explode, int uncoveredCoordinates, int totalBombs) {
-        if (explode) {
-            return GameStatus.PLAYER_LOST;
-        }
-        if (uncoveredCoordinates == totalBombs) {
-            return GameStatus.PLAYER_WON;
-        }
-        return GameStatus.IN_PROGRESS;
+        return gameToUpdate;
     }
 
     private void validateGameAlreadyFinished(Game game) {

@@ -14,15 +14,22 @@ public record Game(@Id String id,
                    int uncoveredCoordinates,
                    Map<Integer, BoardPosition> boardPositionMap) {
 
-    public Game copyUpdatingMovement(GameStatus gameStatus,
-                                     int uncoveredCoordinates,
-                                     Map<Integer, BoardPosition> boardPositionToUpdate) {
+    public Game copyUpdatingStatus(GameStatus status, int uncoveredCoordinates) {
         return Game.builder()
                 .id(this.id)
-                .status(gameStatus)
+                .status(status)
                 .totalBombs(this.totalBombs)
                 .uncoveredCoordinates(uncoveredCoordinates)
-                .boardPositionMap(boardPositionToUpdate)
+                .boardPositionMap(this.boardPositionMap)
+                .build();
+    }
+    public Game copyUpdatingMovement(Map<Integer, BoardPosition> boardPositionMap, GameStatus status) {
+        return Game.builder()
+                .id(this.id)
+                .status(status)
+                .totalBombs(this.totalBombs)
+                .uncoveredCoordinates(this.uncoveredCoordinates)
+                .boardPositionMap(boardPositionMap)
                 .build();
     }
 }
