@@ -24,6 +24,15 @@ public class CoordinateUtils {
         coordinateSet.add(new Coordinate(x + 1, y));
         coordinateSet.add(new Coordinate(x, y + 1));
 
+        // Add diagonal positions
+        if (x > 0 && y > 0) {
+            coordinateSet.add(new Coordinate(x - 1, y - 1));
+        }
+
+        coordinateSet.add(new Coordinate(x + 1, y - 1));
+        coordinateSet.add(new Coordinate(x - 1, y + 1));
+        coordinateSet.add(new Coordinate(x + 1, y + 1));
+
         return coordinateSet;
     }
 }

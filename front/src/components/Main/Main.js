@@ -43,6 +43,8 @@ function Main() {
         <h1 className="title">Minesweeper App</h1>
         <p className="subtitle">Powered by: Renan Rodrigues</p>
         {gameData && <p className="gameId">Game ID: {gameData.id}</p>}
+        {gameData && <p className="gameId">Status: {gameData.status}</p>}
+        {gameData && <p className="gameId">Total bombs: {gameData.totalBombs}</p>}
       </header>
 
       {gameData && <button className="button" onClick={() => handleRestartGame(gameData.id)}>Restart Game</button>}
