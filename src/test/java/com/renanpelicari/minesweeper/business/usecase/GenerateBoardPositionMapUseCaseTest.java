@@ -16,10 +16,10 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class GenerateBoardPositionsUseCaseTest {
+class GenerateBoardPositionMapUseCaseTest {
 
     @InjectMocks
-    private GenerateBoardPositionsUseCase generateBoardPositionsUseCase;
+    private GenerateBoardPositionMapUseCase generateBoardPositionMapUseCase;
 
     @Mock
     private MinesweeperConfig minesweeperConfig;
@@ -46,7 +46,7 @@ class GenerateBoardPositionsUseCaseTest {
                 new Coordinate(4, 3)
         );
 
-        Set<BoardPosition> boardPositions = generateBoardPositionsUseCase.exec(bombPositions);
+        Set<BoardPosition> boardPositions = generateBoardPositionMapUseCase.exec(bombPositions);
 
         // Assert that each bomb position coordinate is within the grid size
         assertEquals(25, boardPositions.size());

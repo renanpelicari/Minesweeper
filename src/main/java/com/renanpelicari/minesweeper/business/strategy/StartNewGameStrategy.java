@@ -1,6 +1,6 @@
 package com.renanpelicari.minesweeper.business.strategy;
 
-import com.renanpelicari.minesweeper.business.usecase.GenerateBoardPositionsUseCase;
+import com.renanpelicari.minesweeper.business.usecase.GenerateBoardPositionMapUseCase;
 import com.renanpelicari.minesweeper.business.usecase.GenerateBombPositionsUseCase;
 import com.renanpelicari.minesweeper.domain.model.BoardPosition;
 import com.renanpelicari.minesweeper.domain.model.Coordinate;
@@ -12,6 +12,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Map;
 import java.util.Set;
 
 @Service
@@ -22,17 +23,17 @@ public class StartNewGameStrategy {
 
     private final GenerateBombPositionsUseCase generateBombPositionsUseCase;
 
-    private final GenerateBoardPositionsUseCase generateBoardPositionsUseCase;
+    private final GenerateBoardPositionMapUseCase generateBoardPositionMapUseCase;
 
     private final GameRepository gameRepository;
 
     public StartNewGameStrategy(MinesweeperConfig minesweeperConfig,
                                 GenerateBombPositionsUseCase generateBombPositionsUseCase,
-                                GenerateBoardPositionsUseCase generateBoardPositionsUseCase,
+                                GenerateBoardPositionMapUseCase generateBoardPositionMapUseCase,
                                 GameRepository gameRepository) {
         this.minesweeperConfig = minesweeperConfig;
         this.generateBombPositionsUseCase = generateBombPositionsUseCase;
-        this.generateBoardPositionsUseCase = generateBoardPositionsUseCase;
+        this.generateBoardPositionMapUseCase = generateBoardPositionMapUseCase;
         this.gameRepository = gameRepository;
     }
 
@@ -42,13 +43,13 @@ public class StartNewGameStrategy {
 
         int uncoveredCoordinates = minesweeperConfig.height() * minesweeperConfig.width();
         Set<Coordinate> bombPositions = generateBombPositionsUseCase.exec();
-        Set<BoardPosition> boardPositions = generateBoardPositionsUseCase.exec(bombPositions);
+        Map<Integer, BoardPosition> boardPositionMap = generateBoardPositionMapUseCase.exec(bombPositions);
 
         Game game = Game.builder()
                 .status(GameStatus.STARTED)
                 .totalBombs(minesweeperConfig.bombs())
                 .uncoveredCoordinates(uncoveredCoordinates)
-                .boardPositions(boardPositions)
+                .boardPositionMap(boardPositionMap)
                 .build();
 
         Game savedGame = gameRepository.save(game);

@@ -1,6 +1,7 @@
 package com.renanpelicari.minesweeper.presentation.controller;
 
 import com.renanpelicari.minesweeper.business.strategy.StartNewGameStrategy;
+import com.renanpelicari.minesweeper.business.strategy.PerformMovementStrategy;
 import com.renanpelicari.minesweeper.domain.model.Game;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.MediaType;
@@ -12,8 +13,11 @@ public class MinesweeperController {
 
     private final StartNewGameStrategy startNewGameStrategy;
 
-    public MinesweeperController(StartNewGameStrategy startNewGameStrategy) {
+    private final PerformMovementStrategy performMovementStrategy;
+
+    public MinesweeperController(StartNewGameStrategy startNewGameStrategy, PerformMovementStrategy performMovementStrategy) {
         this.startNewGameStrategy = startNewGameStrategy;
+        this.performMovementStrategy = performMovementStrategy;
     }
 
 
@@ -28,11 +32,11 @@ public class MinesweeperController {
 //        return null;
 //    }
 //
-//    @PutMapping(value = "/click/{id}")
-//    public Game onClick(@PathVariable("id") Long gameId, @RequestParam int positionX,
-//                                 @RequestParam int positionY) {
-//        return null;
-//    }
+    @PutMapping(value = "/click/{gameId}")
+    public Game onClick(@PathVariable("gameId") String gameId, @RequestParam int positionX,
+                        @RequestParam int positionY) {
+        return performMovementStrategy.exec(gameId, positionX, positionY);
+    }
 //
 //    @PutMapping(value = "/flag/{id}")
 //    public Game changeFlag(@PathVariable("id") Long gameId, @RequestParam int positionX,
