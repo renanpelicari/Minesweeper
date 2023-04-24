@@ -1,12 +1,12 @@
-package com.renanpelicari.minesweeper.business.strategy;
+package com.renanpelicari.minesweeper.business.usecase;
 
-import com.renanpelicari.minesweeper.business.usecase.GenerateBoardPositionMapUseCase;
-import com.renanpelicari.minesweeper.business.usecase.GenerateBombPositionsUseCase;
+import com.renanpelicari.minesweeper.domain.mapper.CopyGameMapper;
 import com.renanpelicari.minesweeper.domain.model.BoardPosition;
 import com.renanpelicari.minesweeper.domain.model.Coordinate;
 import com.renanpelicari.minesweeper.domain.model.Game;
 import com.renanpelicari.minesweeper.domain.model.GameStatus;
 import com.renanpelicari.minesweeper.infrastructure.config.MinesweeperConfig;
+import com.renanpelicari.minesweeper.infrastructure.repository.CopyGameRepository;
 import com.renanpelicari.minesweeper.infrastructure.repository.GameRepository;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
@@ -17,7 +17,7 @@ import java.util.Set;
 
 @Service
 @Log4j2
-public class StartNewGameStrategy {
+public class StartNewGameUseCase {
 
     private final MinesweeperConfig minesweeperConfig;
 
@@ -27,14 +27,18 @@ public class StartNewGameStrategy {
 
     private final GameRepository gameRepository;
 
-    public StartNewGameStrategy(MinesweeperConfig minesweeperConfig,
-                                GenerateBombPositionsUseCase generateBombPositionsUseCase,
-                                GenerateBoardPositionMapUseCase generateBoardPositionMapUseCase,
-                                GameRepository gameRepository) {
+    private final CopyGameRepository copyGameRepository;
+
+    public StartNewGameUseCase(MinesweeperConfig minesweeperConfig,
+                               GenerateBombPositionsUseCase generateBombPositionsUseCase,
+                               GenerateBoardPositionMapUseCase generateBoardPositionMapUseCase,
+                               GameRepository gameRepository,
+                               CopyGameRepository copyGameRepository) {
         this.minesweeperConfig = minesweeperConfig;
         this.generateBombPositionsUseCase = generateBombPositionsUseCase;
         this.generateBoardPositionMapUseCase = generateBoardPositionMapUseCase;
         this.gameRepository = gameRepository;
+        this.copyGameRepository = copyGameRepository;
     }
 
     @Transactional
@@ -53,6 +57,7 @@ public class StartNewGameStrategy {
                 .build();
 
         Game savedGame = gameRepository.save(game);
+        copyGameRepository.save(CopyGameMapper.gameToCopy(savedGame));
 
         log.info("END startNewGame strategy, response={}", savedGame);
         return savedGame;
