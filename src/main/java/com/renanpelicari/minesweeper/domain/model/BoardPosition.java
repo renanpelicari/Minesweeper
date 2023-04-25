@@ -9,8 +9,8 @@ public record BoardPosition(Coordinate coordinate,
                             boolean hasBomb,
                             boolean hasFlag,
                             boolean alreadyClicked,
-                            int totalNeighbourBombs,
-                            Set<Coordinate> neighbourBombs) {
+                            long totalNeighbourBombs,
+                            Set<Coordinate> neighbourCoordinates) {
 
     public BoardPosition copyUpdatingFlag(boolean hasFlag) {
         return BoardPosition.builder()
@@ -19,7 +19,7 @@ public record BoardPosition(Coordinate coordinate,
                 .hasFlag(hasFlag)
                 .alreadyClicked(this.alreadyClicked)
                 .totalNeighbourBombs(this.totalNeighbourBombs)
-                .neighbourBombs(this.neighbourBombs)
+                .neighbourCoordinates(this.neighbourCoordinates)
                 .build();
     }
 
@@ -30,7 +30,7 @@ public record BoardPosition(Coordinate coordinate,
                 .hasFlag(this.hasFlag)
                 .alreadyClicked(alreadyClicked)
                 .totalNeighbourBombs(this.totalNeighbourBombs)
-                .neighbourBombs(this.neighbourBombs)
+                .neighbourCoordinates(this.neighbourCoordinates)
                 .build();
     }
 }

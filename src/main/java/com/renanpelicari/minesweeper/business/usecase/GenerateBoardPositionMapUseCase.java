@@ -31,26 +31,19 @@ public class GenerateBoardPositionMapUseCase {
                         Record::hashCode,
                         coordinate -> {
                             boolean hasBomb = bombPositions.contains(coordinate);
-                            Set<Coordinate> neighbourBombs = getNeighbourBombs(coordinate, bombPositions, height, width);
-//                            Set<Coordinate> neighbourBombs = hasBomb ? Set.of() :
-//                                    getNeighbourBombs(coordinate, bombPositions);
+                            Set<Coordinate> neighbourCandidates = CoordinateUtils.getNeighboursCoordinates(coordinate,
+                                    height, width);
+
+                            long totalNeighbourBombs = neighbourCandidates.stream().filter(bombPositions::contains).count();
 
                             return BoardPosition.builder()
                                     .coordinate(coordinate)
                                     .hasBomb(hasBomb)
                                     .hasFlag(false)
-                                    .neighbourBombs(neighbourBombs)
-                                    .totalNeighbourBombs((int) neighbourBombs.stream().filter(bombPositions::contains).count())
-//                                    .totalNeighbourBombs(neighbourBombs.size())
+                                    .neighbourCoordinates(neighbourCandidates)
+                                    .totalNeighbourBombs(totalNeighbourBombs)
                                     .build();
                         }));
     }
 
-    private Set<Coordinate> getNeighbourBombs(Coordinate coordinate, Set<Coordinate> bombPositions,
-                                              int height, int width) {
-        return CoordinateUtils.getNeighboursCoordinates(coordinate, height, width)
-                .stream()
-//                .filter(bombPositions::contains)
-                .collect(Collectors.toSet());
-    }
 }

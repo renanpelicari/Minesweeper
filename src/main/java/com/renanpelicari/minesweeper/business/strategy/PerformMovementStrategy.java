@@ -1,14 +1,11 @@
 package com.renanpelicari.minesweeper.business.strategy;
 
-import com.renanpelicari.minesweeper.business.usecase.GenerateBoardPositionMapUseCase;
-import com.renanpelicari.minesweeper.business.usecase.GenerateBombPositionsUseCase;
 import com.renanpelicari.minesweeper.domain.exception.InvalidMovementException;
 import com.renanpelicari.minesweeper.domain.exception.NotFoundException;
 import com.renanpelicari.minesweeper.domain.model.BoardPosition;
 import com.renanpelicari.minesweeper.domain.model.Coordinate;
 import com.renanpelicari.minesweeper.domain.model.Game;
 import com.renanpelicari.minesweeper.domain.model.GameStatus;
-import com.renanpelicari.minesweeper.infrastructure.config.MinesweeperConfig;
 import com.renanpelicari.minesweeper.infrastructure.repository.GameRepository;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
@@ -21,21 +18,10 @@ import java.util.Map;
 @Log4j2
 public class PerformMovementStrategy {
 
-    private final MinesweeperConfig minesweeperConfig;
-
-    private final GenerateBombPositionsUseCase generateBombPositionsUseCase;
-
-    private final GenerateBoardPositionMapUseCase generateBoardPositionMapUseCase;
 
     private final GameRepository gameRepository;
 
-    public PerformMovementStrategy(MinesweeperConfig minesweeperConfig,
-                                   GenerateBombPositionsUseCase generateBombPositionsUseCase,
-                                   GenerateBoardPositionMapUseCase generateBoardPositionMapUseCase,
-                                   GameRepository gameRepository) {
-        this.minesweeperConfig = minesweeperConfig;
-        this.generateBombPositionsUseCase = generateBombPositionsUseCase;
-        this.generateBoardPositionMapUseCase = generateBoardPositionMapUseCase;
+    public PerformMovementStrategy(GameRepository gameRepository) {
         this.gameRepository = gameRepository;
     }
 
@@ -99,7 +85,7 @@ public class PerformMovementStrategy {
 
         // If the clicked position has no neighboring bombs, recursively click on neighboring positions
         if (!gameStatus.isGameFinished() && boardPositionClicked.totalNeighbourBombs() == 0) {
-            for (Coordinate neighbourCoordinate : boardPositionClicked.neighbourBombs()) {
+            for (Coordinate neighbourCoordinate : boardPositionClicked.neighbourCoordinates()) {
 
                 Integer neighbourCoordinateKey = neighbourCoordinate.hashCode();
 
