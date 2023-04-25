@@ -8,6 +8,7 @@ import com.renanpelicari.minesweeper.domain.exception.InvalidMovementException;
 import com.renanpelicari.minesweeper.domain.exception.NotFoundException;
 import com.renanpelicari.minesweeper.domain.model.Game;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequestMapping(value = "/minesweeper", produces = MediaType.APPLICATION_JSON_VALUE)
+@Tag(name = "Minesweeper", description = "Operations related to Minesweeper game")
 public class MinesweeperController {
 
     private final StartNewGameUseCase startNewGameUseCase;
@@ -53,6 +55,7 @@ public class MinesweeperController {
      * @throws NotFoundException when the game cannot be found by gameId
      */
     @GetMapping(value = "/restart/{id}")
+    @Operation(summary = "Restart existing game based on ID.")
     public Game restartGame(@PathVariable("id") String gameId) throws NotFoundException {
         return restartGameUseCase.exec(gameId);
     }
@@ -69,6 +72,7 @@ public class MinesweeperController {
      * @throws InvalidMovementException when try to click in a position that has a flag
      */
     @PutMapping(value = "/click/{gameId}")
+    @Operation(summary = "Perform a movement / click on a board position.")
     public Game onClick(@PathVariable("gameId") String gameId, @RequestParam int positionX,
                         @RequestParam int positionY) throws NotFoundException, InvalidMovementException {
         return performMovementUseCase.exec(gameId, positionX, positionY);
@@ -86,6 +90,7 @@ public class MinesweeperController {
      * @throws InvalidMovementException when try to change a flag of a position which previous selected (not as a flag)
      */
     @PutMapping(value = "/flag/{id}")
+    @Operation(summary = "Add/Remove a flag on a board position.")
     public Game changeFlag(@PathVariable("id") String gameId, @RequestParam int positionX,
                            @RequestParam int positionY) throws NotFoundException, InvalidMovementException {
         return changeFlagUseCase.exec(gameId, positionX, positionY);
