@@ -1,11 +1,10 @@
 package com.renanpelicari.minesweeper.business.usecase;
 
-import com.renanpelicari.minesweeper.domain.exception.InvalidMovementException;
+import com.renanpelicari.minesweeper.business.validator.MovementValidator;
 import com.renanpelicari.minesweeper.domain.exception.NotFoundException;
 import com.renanpelicari.minesweeper.domain.model.BoardPosition;
 import com.renanpelicari.minesweeper.domain.model.Coordinate;
 import com.renanpelicari.minesweeper.domain.model.Game;
-import com.renanpelicari.minesweeper.infrastructure.repository.CopyGameRepository;
 import com.renanpelicari.minesweeper.infrastructure.repository.GameRepository;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
@@ -19,12 +18,9 @@ public class ChangeFlagUseCase {
 
     private final GameRepository gameRepository;
 
-    private final CopyGameRepository copyGameRepository;
 
-    public ChangeFlagUseCase(GameRepository gameRepository,
-                             CopyGameRepository copyGameRepository) {
+    public ChangeFlagUseCase(GameRepository gameRepository) {
         this.gameRepository = gameRepository;
-        this.copyGameRepository = copyGameRepository;
     }
 
     @Transactional
@@ -35,7 +31,7 @@ public class ChangeFlagUseCase {
 
         // TODO: starting duplicated part with PerformMovementStrategy - need to be refactored and reused for both
         // verify the status of game
-        validateGameAlreadyFinished(game);
+        MovementValidator.validateGameAlreadyFinished(game);
 
         // new clicked position
         Coordinate coordinate = new Coordinate(x, y);
@@ -45,11 +41,11 @@ public class ChangeFlagUseCase {
         Map<Integer, BoardPosition> boardPositionMap = game.boardPositionMap();
 
         // verify if the position is valid
-        validatePositionIsValid(boardPositionMap, coordinate);
+        MovementValidator.validatePositionIsValid(boardPositionMap, coordinate);
         BoardPosition boardPositionClicked = boardPositionMap.get(coordinateKey);
 
         // verify if the position was clicked before
-        validatePositionAlreadyClicked(boardPositionClicked, coordinate);
+        MovementValidator.validatePositionAlreadyClicked(boardPositionClicked, coordinate);
         // TODO: finishing duplicated part with PerformMovementStrategy - need to be refactored and reused for both
 
         // generate new object from an exists one and update the map
@@ -63,30 +59,5 @@ public class ChangeFlagUseCase {
         log.info("END changeFlag, response={}", savedGame);
         return savedGame;
 
-    }
-
-
-    private void validateGameAlreadyFinished(Game game) {
-        if (game.status().isGameFinished()) {
-            String message = String.format("Game %s already finished, current status is %s.", game.id(), game.status());
-            log.error("ERROR {}", message);
-            throw new InvalidMovementException(message);
-        }
-    }
-
-    private void validatePositionIsValid(Map<Integer, BoardPosition> boardPositionMap, Coordinate coordinate) {
-        if (!boardPositionMap.containsKey(coordinate.hashCode())) {
-            String message = String.format("Position {%s} not exists in the game grid.", coordinate);
-            log.error("ERROR {}", message);
-            throw new InvalidMovementException(message);
-        }
-    }
-
-    private void validatePositionAlreadyClicked(BoardPosition boardPositionClicked, Coordinate coordinate) {
-        if (boardPositionClicked.alreadyClicked()) {
-            String message = String.format("Position {%s} was previously clicked.", coordinate);
-            log.error("ERROR {}", message);
-            throw new InvalidMovementException(message);
-        }
     }
 }

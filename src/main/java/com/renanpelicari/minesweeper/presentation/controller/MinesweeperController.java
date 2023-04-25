@@ -1,9 +1,9 @@
 package com.renanpelicari.minesweeper.presentation.controller;
 
 import com.renanpelicari.minesweeper.business.usecase.ChangeFlagUseCase;
+import com.renanpelicari.minesweeper.business.usecase.PerformMovementUseCase;
 import com.renanpelicari.minesweeper.business.usecase.RestartGameUseCase;
 import com.renanpelicari.minesweeper.business.usecase.StartNewGameUseCase;
-import com.renanpelicari.minesweeper.business.strategy.PerformMovementStrategy;
 import com.renanpelicari.minesweeper.domain.model.Game;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.MediaType;
@@ -19,16 +19,16 @@ public class MinesweeperController {
 
     private final ChangeFlagUseCase changeFlagUseCase;
 
-    private final PerformMovementStrategy performMovementStrategy;
+    private final PerformMovementUseCase performMovementUseCase;
 
     public MinesweeperController(StartNewGameUseCase startNewGameUseCase,
                                  RestartGameUseCase restartGameUseCase,
                                  ChangeFlagUseCase changeFlagUseCase,
-                                 PerformMovementStrategy performMovementStrategy) {
+                                 PerformMovementUseCase performMovementUseCase) {
         this.startNewGameUseCase = startNewGameUseCase;
         this.restartGameUseCase = restartGameUseCase;
         this.changeFlagUseCase = changeFlagUseCase;
-        this.performMovementStrategy = performMovementStrategy;
+        this.performMovementUseCase = performMovementUseCase;
     }
 
 
@@ -46,7 +46,7 @@ public class MinesweeperController {
     @PutMapping(value = "/click/{gameId}")
     public Game onClick(@PathVariable("gameId") String gameId, @RequestParam int positionX,
                         @RequestParam int positionY) {
-        return performMovementStrategy.exec(gameId, positionX, positionY);
+        return performMovementUseCase.exec(gameId, positionX, positionY);
     }
 
     @PutMapping(value = "/flag/{id}")
