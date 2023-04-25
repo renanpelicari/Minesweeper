@@ -11,7 +11,7 @@ function Main() {
 
   const handleNewGame = async () => {
     try {
-      const response = await axios.get('http://localhost:8080/minesweeper/new');
+      const response = await axios.get('http://localhost:8088/minesweeper/new');
       setGameData(response.data);
     } catch (error) {
       console.error('Error on start new game:', error);
@@ -21,7 +21,7 @@ function Main() {
 
   const handleRestartGame = async (gameId) => {
     try {
-      const response = await axios.get(`http://localhost:8080/minesweeper/restart/${gameId}`);
+      const response = await axios.get(`http://localhost:8088/minesweeper/restart/${gameId}`);
       setGameData(response.data);
     } catch (error) {
       console.error('Error on restart game:', error);
@@ -57,7 +57,7 @@ function Main() {
 
   const handleItemClick = async (gameId, coordinate) => {
     try {
-      const response = await axios.put(`http://localhost:8080/minesweeper/click/${gameId}?positionX=${coordinate.x}&positionY=${coordinate.y}`);
+      const response = await axios.put(`http://localhost:8088/minesweeper/click/${gameId}?positionX=${coordinate.x}&positionY=${coordinate.y}`);
       setGameData(response.data);
     } catch (error) {
       console.error('Error on make a move:', error);
@@ -67,7 +67,7 @@ function Main() {
 
   const handleChangeFlag = async (gameId, coordinate) => {
     try {
-      const response = await axios.put(`http://localhost:8080/minesweeper/flag/${gameId}?positionX=${coordinate.x}&positionY=${coordinate.y}`);
+      const response = await axios.put(`http://localhost:8088/minesweeper/flag/${gameId}?positionX=${coordinate.x}&positionY=${coordinate.y}`);
       setGameData(response.data);
     } catch (error) {
       console.error('Error on flag/unflag a position:', error);

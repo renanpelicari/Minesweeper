@@ -4,7 +4,7 @@ spring:
 
   data:
     mongodb:
-      uri: mongodb://root:rootpwd@localhost:27017/minesweeper?authSource=admin
+      uri: mongodb://root:rootpwd@mongo:27017/minesweeper?authSource=admin
       database: minesweeper
 
 management:
