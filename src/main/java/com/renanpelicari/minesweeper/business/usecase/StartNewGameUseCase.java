@@ -1,8 +1,8 @@
 package com.renanpelicari.minesweeper.business.usecase;
 
+import com.renanpelicari.minesweeper.domain.util.MinesweeperBoardUtils;
 import com.renanpelicari.minesweeper.domain.mapper.CopyGameMapper;
 import com.renanpelicari.minesweeper.domain.model.BoardPosition;
-import com.renanpelicari.minesweeper.domain.model.Coordinate;
 import com.renanpelicari.minesweeper.domain.model.Game;
 import com.renanpelicari.minesweeper.domain.model.GameStatus;
 import com.renanpelicari.minesweeper.infrastructure.config.MinesweeperConfig;
@@ -13,41 +13,39 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
-import java.util.Set;
 
-@Service
+/**
+ * The starting new game use case.
+ */
 @Log4j2
+@Service
 public class StartNewGameUseCase {
 
     private final MinesweeperConfig minesweeperConfig;
-
-    private final GenerateBombPositionsUseCase generateBombPositionsUseCase;
-
-    private final GenerateBoardPositionMapUseCase generateBoardPositionMapUseCase;
 
     private final GameRepository gameRepository;
 
     private final CopyGameRepository copyGameRepository;
 
     public StartNewGameUseCase(MinesweeperConfig minesweeperConfig,
-                               GenerateBombPositionsUseCase generateBombPositionsUseCase,
-                               GenerateBoardPositionMapUseCase generateBoardPositionMapUseCase,
                                GameRepository gameRepository,
                                CopyGameRepository copyGameRepository) {
         this.minesweeperConfig = minesweeperConfig;
-        this.generateBombPositionsUseCase = generateBombPositionsUseCase;
-        this.generateBoardPositionMapUseCase = generateBoardPositionMapUseCase;
         this.gameRepository = gameRepository;
         this.copyGameRepository = copyGameRepository;
     }
 
+    /**
+     * This method will create a new minesweeper game with bombs in a random position, also will generate a copy of
+     * this game in the initial state, to be used in case of restart game.
+     * @return the {@link Game} containing the all setup minesweeper game.
+     */
     @Transactional
     public Game exec() {
-        log.info("BEGIN startNewGame strategy.");
+        log.info("BEGIN startNewGame.");
 
-        int uncoveredCoordinates = minesweeperConfig.height() * minesweeperConfig.width();
-        Set<Coordinate> bombPositions = generateBombPositionsUseCase.exec();
-        Map<Integer, BoardPosition> boardPositionMap = generateBoardPositionMapUseCase.exec(bombPositions);
+        int uncoveredCoordinates = (minesweeperConfig.height() * minesweeperConfig.width()) - minesweeperConfig.bombs();
+        Map<Integer, BoardPosition> boardPositionMap = MinesweeperBoardUtils.generateBoardPositions(minesweeperConfig);
 
         Game game = Game.builder()
                 .status(GameStatus.STARTED)
@@ -59,7 +57,7 @@ public class StartNewGameUseCase {
         Game savedGame = gameRepository.save(game);
         copyGameRepository.save(CopyGameMapper.gameToCopy(savedGame));
 
-        log.info("END startNewGame strategy, response={}", savedGame);
+        log.info("END startNewGame, response={}", savedGame);
         return savedGame;
 
     }
