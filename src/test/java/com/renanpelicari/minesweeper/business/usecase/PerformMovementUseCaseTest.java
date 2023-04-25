@@ -99,7 +99,7 @@ class PerformMovementUseCaseTest {
         given(gameRepository.save(any())).willReturn(GameFixtures.GAME_LOST);
 
         Game expectedResult = GameFixtures.GAME_LOST;
-        performMovementUseCase.exec(GameFixtures.DEFAULT_ID, 2, 2);
+        performMovementUseCase.exec(GameFixtures.DEFAULT_ID, 1, 1);
 
         verify(gameRepository).findById(GameFixtures.DEFAULT_ID);
         verify(gameRepository).save(gameCaptor.capture());

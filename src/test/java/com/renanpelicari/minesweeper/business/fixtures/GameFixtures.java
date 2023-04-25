@@ -1,6 +1,5 @@
 package com.renanpelicari.minesweeper.business.fixtures;
 
-import com.renanpelicari.minesweeper.domain.mapper.CopyGameMapper;
 import com.renanpelicari.minesweeper.domain.model.CopyGame;
 import com.renanpelicari.minesweeper.domain.model.Game;
 import com.renanpelicari.minesweeper.domain.model.GameStatus;
@@ -51,5 +50,11 @@ public class GameFixtures {
             .boardPositionMap(BoardPositionMapFixtures.DEFAULT_BOARD_POSITION_MAP)
             .build();
 
-    public static final CopyGame COPY_GAME = CopyGameMapper.gameToCopy(STARTED_GAME);
+    public static final CopyGame COPY_GAME = CopyGame.builder()
+            .id(DEFAULT_ID)
+            .status(GameStatus.STARTED)
+            .totalBombs(1)
+            .uncoveredCoordinates(3)
+            .boardPositionMap(BoardPositionMapFixtures.DEFAULT_BOARD_POSITION_MAP)
+            .build();
 }

@@ -11,9 +11,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties("minesweeper.config")
 public record MinesweeperConfig(
     int width,
-
     int height,
-
     int bombs
 ) {
     /**

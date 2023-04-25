@@ -97,7 +97,7 @@ class ChangeFlagUseCaseTest {
 
         given(gameRepository.save(GameFixtures.STARTED_GAME)).willReturn(GameFixtures.STARTED_GAME);
 
-        Game expectedResult = GameFixtures.STARTED_GAME;
+        Game expectedResult = GameFixtures.STARTED_GAME_FLAG_CHANGED;
         changeFlagUseCase.exec(GameFixtures.DEFAULT_ID, 2, 2);
 
         verify(gameRepository).findById(GameFixtures.DEFAULT_ID);
