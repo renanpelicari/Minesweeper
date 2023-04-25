@@ -10,8 +10,11 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Service
+/**
+ * This use case is responsible to restart an exists game.
+ */
 @Log4j2
+@Service
 public class RestartGameUseCase {
 
     private final GameRepository gameRepository;
@@ -23,13 +26,20 @@ public class RestartGameUseCase {
         this.copyGameRepository = copyGameRepository;
     }
 
+    /**
+     * Based on gameId, this method will search for the copy of the game, in a different repository, then override
+     * the current version of the game in the main repository.
+     * @param gameId the game unique identification
+     * @return the {@link Game} with all configuration (bombs and board positions), but all movements reset.
+     * @throws NotFoundException when the game cannot be found by gameId
+     */
     @Transactional
-    public Game exec(String gameId) {
+    public Game exec(String gameId) throws NotFoundException {
         log.info("BEGIN restartGame strategy.");
 
         CopyGame copyGame = copyGameRepository.findById(gameId)
-                .orElseThrow(() -> new NotFoundException(String.format("A copy of Game not found by id=%s", gameId)));
-
+                .orElseThrow(() ->
+                        new NotFoundException(String.format("A copy of Game could not be found by id=%s", gameId)));
 
         Game updatedGame = gameRepository.save(CopyGameMapper.copyToGame(copyGame));
 

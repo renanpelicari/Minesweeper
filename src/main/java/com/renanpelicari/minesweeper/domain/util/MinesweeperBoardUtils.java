@@ -1,26 +1,32 @@
-package com.renanpelicari.minesweeper.business.usecase;
+package com.renanpelicari.minesweeper.domain.util;
 
 import com.renanpelicari.minesweeper.domain.model.BoardPosition;
 import com.renanpelicari.minesweeper.domain.model.Coordinate;
-import com.renanpelicari.minesweeper.domain.util.CoordinateUtils;
 import com.renanpelicari.minesweeper.infrastructure.config.MinesweeperConfig;
-import org.springframework.stereotype.Service;
 
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-@Service
-public class GenerateBoardPositionMapUseCase {
+/**
+ * The handler to generate board and bombs position.
+ */
+public class MinesweeperBoardUtils {
 
-    private final MinesweeperConfig minesweeperConfig;
+    /**
+     * Based on minesweeper configuration, like total bombs, width and height of the grid, this method will generate
+     * a map containing the hashCode of coordinate as key, and a BoardPosition as value, that contains not only the
+     * position itself, but more information related to that position, like: hasBomb, hasFlag, alreadyClicked,
+     * totalNeighbourBombs
+     * @param minesweeperConfig the configuration of the minesweeper game.
+     * @return a map containing the hashCode of coordinate as key, and a BoardPosition as value.
+     */
+    public static Map<Integer, BoardPosition> generateBoardPositions(MinesweeperConfig minesweeperConfig) {
 
-    public GenerateBoardPositionMapUseCase(MinesweeperConfig minesweeperConfig) {
-        this.minesweeperConfig = minesweeperConfig;
-    }
+        Set<Coordinate> bombPositions = generateBombsPosition(minesweeperConfig);
 
-    public Map<Integer, BoardPosition> exec(Set<Coordinate> bombPositions) {
         int height = minesweeperConfig.height();
         int width = minesweeperConfig.width();
 
@@ -44,6 +50,21 @@ public class GenerateBoardPositionMapUseCase {
                                     .totalNeighbourBombs(totalNeighbourBombs)
                                     .build();
                         }));
+    }
+
+    private static Set<Coordinate> generateBombsPosition(MinesweeperConfig minesweeperConfig) {
+        int totalBombs = minesweeperConfig.bombs();
+        int width = minesweeperConfig.width();
+        int height = minesweeperConfig.height();
+        int gridPositions = width * height;
+
+        Random random = new Random();
+
+        return random.ints(0, gridPositions)
+                .distinct()
+                .limit(totalBombs)
+                .mapToObj(i -> new Coordinate(i % width, i / width))
+                .collect(Collectors.toSet());
     }
 
 }

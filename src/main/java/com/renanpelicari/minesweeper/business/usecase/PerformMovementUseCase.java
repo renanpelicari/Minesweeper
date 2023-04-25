@@ -1,6 +1,7 @@
 package com.renanpelicari.minesweeper.business.usecase;
 
-import com.renanpelicari.minesweeper.business.validator.MovementValidator;
+import com.renanpelicari.minesweeper.domain.exception.InvalidMovementException;
+import com.renanpelicari.minesweeper.domain.validator.MovementValidator;
 import com.renanpelicari.minesweeper.domain.exception.NotFoundException;
 import com.renanpelicari.minesweeper.domain.model.BoardPosition;
 import com.renanpelicari.minesweeper.domain.model.Coordinate;
@@ -14,8 +15,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 
-@Service
+/**
+ * The use case to handle with movement/clicking.
+ */
 @Log4j2
+@Service
 public class PerformMovementUseCase {
 
     private final GameRepository gameRepository;
@@ -24,16 +28,27 @@ public class PerformMovementUseCase {
         this.gameRepository = gameRepository;
     }
 
+    /**
+     * Based on gameId and x,y position, this method will perform a movement (a click) in the minesweeper board.
+     * @param gameId the game unique identification
+     * @param x the coordinate x
+     * @param y the coordinate y
+     * @return the updated {@link Game} containing the all setup of game with the movements, positions and status.
+     * @throws NotFoundException when the game cannot be found by gameId
+     * @throws InvalidMovementException when select a position which not exists
+     * @throws InvalidMovementException when try to perform a movement in a finished game
+     * @throws InvalidMovementException when try to click in a position that has a flag
+     */
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public Game exec(String gameId, int x, int y) {
+    public Game exec(String gameId, int x, int y) throws NotFoundException, InvalidMovementException {
         log.info("BEGIN updateGame strategy.");
 
         Game game = gameRepository.findById(gameId)
                 .orElseThrow(() -> new NotFoundException(String.format("Game not found by id=%s", gameId)));
 
-        boolean firstExec = true; // TODO: document/improve this - first execution of recursion, to avoid validation
-        // of flags during the recursive call
-        Game gameToUpdate = performMovement(game, x, y, firstExec);
+        // flag to be used as a control for recursive call
+        boolean isTheFirstCall = true;
+        Game gameToUpdate = performMovement(game, x, y, isTheFirstCall);
 
         // decrement uncoveredCoordinates based on this move and collect the new status
         int uncoveredCoordinates = (int) gameToUpdate.boardPositionMap().values().stream()
@@ -49,7 +64,7 @@ public class PerformMovementUseCase {
         return savedGame;
     }
 
-    private Game performMovement(Game game, int x, int y, boolean firstExec) {
+    private Game performMovement(Game game, int x, int y, boolean isTheFirstCall) {
         // verify the status of game
         MovementValidator.validateGameAlreadyFinished(game);
 
@@ -64,8 +79,8 @@ public class PerformMovementUseCase {
         MovementValidator.validatePositionIsValid(boardPositionMap, coordinate);
         BoardPosition boardPositionClicked = boardPositionMap.get(coordinateKey);
 
-        // verify if the position has flag
-        if (firstExec) {
+        // verify if the position has flag, but validate only the first time (when user actively click on position)
+        if (isTheFirstCall) {
             MovementValidator.validatePositionHasFlag(boardPositionClicked, coordinate);
         }
 
@@ -77,7 +92,7 @@ public class PerformMovementUseCase {
         boardPositionMap.put(coordinateKey, boardPositionToUpdate);
 
         // check if position clicked is a bomb
-        GameStatus gameStatus = boardPositionClicked.hasBomb() ? GameStatus.PLAYER_LOST : game.status();
+        GameStatus gameStatus = getGameStatus(game, boardPositionClicked, isTheFirstCall);
 
         // update and save the game with this current movement
         Game gameToUpdate = game.copyUpdatingMovement(boardPositionMap, gameStatus);
@@ -100,5 +115,21 @@ public class PerformMovementUseCase {
         }
 
         return gameToUpdate;
+    }
+
+    private static GameStatus getGameStatus(Game game, BoardPosition boardPositionClicked, boolean isTheFirstCall) {
+        if (!isTheFirstCall) {
+            return game.status();
+        }
+
+        if (boardPositionClicked.hasBomb()) {
+            return GameStatus.PLAYER_LOST;
+        }
+
+        if (game.status() == GameStatus.STARTED) {
+            return GameStatus.IN_PROGRESS;
+        }
+
+        return game.status();
     }
 }

@@ -5,8 +5,18 @@ import com.renanpelicari.minesweeper.domain.model.Coordinate;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * The util class for coordinate.
+ */
 public class CoordinateUtils {
 
+    /**
+     * Based on the coordinate and the size of grid, this method will generate all the neighbour coordinates.
+     * @param coordinate the coordinate that will be used as reference to generate the neighbours.
+     * @param height the height of the board/grid.
+     * @param width the width of the board/grid.
+     * @return the set containing all the neighbour coordinates.
+     */
     public static Set<Coordinate> getNeighboursCoordinates(Coordinate coordinate, int height, int width) {
         Set<Coordinate> coordinateSet = new HashSet<>();
 
