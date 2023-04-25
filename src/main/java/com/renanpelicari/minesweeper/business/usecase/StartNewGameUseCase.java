@@ -44,7 +44,7 @@ public class StartNewGameUseCase {
     public Game exec() {
         log.info("BEGIN startNewGame.");
 
-        int uncoveredCoordinates = minesweeperConfig.height() * minesweeperConfig.width();
+        int uncoveredCoordinates = (minesweeperConfig.height() * minesweeperConfig.width()) - minesweeperConfig.bombs();
         Map<Integer, BoardPosition> boardPositionMap = MinesweeperBoardUtils.generateBoardPositions(minesweeperConfig);
 
         Game game = Game.builder()
