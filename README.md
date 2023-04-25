@@ -1,5 +1,8 @@
 # Minesweeper API
 
+This project is an API for Minesweeper Game, built in Java, SpringBoot and MongoDB.
+Beyond the API implementation, also has a frontend application, that will provide the full experience of playing minesweeper game.
+
 ## Project Structure
 
 This project follows a clean architecture design, which promotes separation of concerns and modularization.
